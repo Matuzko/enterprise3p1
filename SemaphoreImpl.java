@@ -3,8 +3,8 @@ package enterprise3p1;
 
 public class SemaphoreImpl implements Semaphore {
 
-    final int  permits;
-    int availablePermits;
+    private int  permits;
+    private int availablePermits;
     final private Object lock;
 
 
