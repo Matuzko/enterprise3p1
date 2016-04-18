@@ -3,9 +3,10 @@ package enterprise3p1;
 
 public class SemaphoreImpl implements Semaphore {
 
-    int permits;
+    final int  permits;
     int availablePermits;
     final private Object lock;
+
 
     public SemaphoreImpl(int permits) {
         this.permits = permits;
@@ -15,7 +16,7 @@ public class SemaphoreImpl implements Semaphore {
 
     @Override
     public void acquire() throws InterruptedException {
-        if (this.availablePermits >= permits) {
+        if (this.availablePermits > 0) {
 
             this.availablePermits--;
 
@@ -28,8 +29,8 @@ public class SemaphoreImpl implements Semaphore {
 
     @Override
     public void acquire(int permits) throws InterruptedException {
-        if ((this.permits - this.availablePermits) >= permits) {
-            this.availablePermits = this.availablePermits - permits;
+        if (this.availablePermits >= permits) {
+            this.availablePermits -= permits;
         }else {
             synchronized (lock){
                 lock.wait();
@@ -38,21 +39,26 @@ public class SemaphoreImpl implements Semaphore {
     }
 
     @Override
-    public void release() {
-        if (!(this.availablePermits <= this.permits)) {
-            this.permits++;
+    public synchronized void release() {
+        if (this.permits > this.availablePermits) {
+            this.availablePermits++;
+            lock.notifyAll();
         }
     }
 
     @Override
-    public void release(int permits) {
-        if (permits < (this.availablePermits - this.permits)) {
-            this.permits+= permits;
+    public synchronized void  release(int permits) {
+        if ((this.permits - this.availablePermits) >= permits) {
+            this.availablePermits+= permits;
+            lock.notifyAll();
+        }
+        else {
+            this.availablePermits = this.permits;
         }
     }
 
     @Override
     public int getAvailablePermits() {
-        return this.availablePermits - this.permits;
+        return this.availablePermits;
     }
 }
