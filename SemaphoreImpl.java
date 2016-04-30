@@ -15,7 +15,7 @@ public class SemaphoreImpl implements Semaphore {
     }
 
     @Override
-    public void acquire() throws InterruptedException {
+    public synchronized void acquire() throws InterruptedException {
         if (this.availablePermits > 0) {
 
             this.availablePermits--;
@@ -28,7 +28,7 @@ public class SemaphoreImpl implements Semaphore {
     }
 
     @Override
-    public void acquire(int permits) throws InterruptedException {
+    public synchronized void acquire(int permits) throws InterruptedException {
         if (this.availablePermits >= permits) {
             this.availablePermits -= permits;
         }else {
